@@ -12,106 +12,170 @@
         .section-title { background: #3b82f6; color: white; padding: 8px 12px; font-weight: bold; border-radius: 4px; margin-top: 20px; font-size: 14px; }
         .form-group { margin-bottom: 12px; margin-top: 10px; }
         label { font-weight: bold; display: block; margin-bottom: 4px; font-size: 13px; }
-        input[type="text"], input[type="date"], select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13px; }
-        .class-box { border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; margin-top: 10px; background: #fafafa; }
-        .class-title { font-weight: bold; color: #1e3a8a; margin-bottom: 8px; }
-        button { background: #16a34a; color: white; border: none; width: 100%; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 20px; }
-        button:hover { background: #15803d; }
+        input[type="text"], input[type="date"], select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13px; }
+        .card-box { border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; margin-top: 10px; background: #fafafa; }
+        .card-header { font-weight: bold; color: #1e3a8a; margin-bottom: 8px; }
+        .person-row { background: #fff; border: 1px dashed #cbd5e1; padding: 10px; border-radius: 4px; margin-bottom: 10px; position: relative; }
+        .btn-add { background: #0284c7; color: white; border: none; padding: 6px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 5px; }
+        .btn-add:hover { background: #0369a1; }
+        .btn-remove { background: #ef4444; color: white; border: none; padding: 2px 6px; font-size: 11px; border-radius: 3px; cursor: pointer; float: right; }
+        .btn-submit { background: #16a34a; color: white; border: none; width: 100%; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 25px; }
+        .btn-submit:hover { background: #15803d; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>ADBH - Regional São Benedito</h1>
-    <p class="subtitle">Mapeamento de Classes e Professores da EBD (CPAD)</p>
+    <p class="subtitle">Mapeamento Dinâmico de Classes e Equipe EBD</p>
 
     <form id="ebdForm">
-        <div class="section-title">1. Dados do Superintendente e Congregação</div>
+        <div class="section-title">1. Congregação e Superintendência</div>
         <div class="form-group">
-            <label>Nome da Congregação:</label>
-            <input type="text" id="congregacao" required placeholder="Ex: Sede Regional, Palmital, etc.">
+    <label>Nome da Congregação:</label>
+    <select id="congregacao" required>
+        <option value="" disabled selected>Selecione a congregação...</option>
+        <option value="Belo Vale">Belo Vale</option>
+        <option value="Cristina A">Cristina A</option>
+        <option value="Cristina B">Cristina B</option>
+        <option value="Duquesa II">Duquesa II</option>
+        <option value="Nova Conquista">Nova Conquista</option>
+        <option value="Nova Esperança">Nova Esperança</option>
+        <option value="Palmital">Palmital</option>
+        <option value="Palmital A">Palmital A</option>
+        <option value="São Cosme de Baixo">São Cosme de Baixo</option>
+        <option value="São Cosme de Cima">São Cosme de Cima</option>
+        <option value="Savassi">Savassi</option>
+        <option value="Subsede">Subsede</option>
+    </select>
+</div>
+        <div id="superintendentesContainer">
+            <div class="person-row">
+                <label>Superintendente Principal:</label>
+                <input type="text" class="sup-nome" placeholder="Nome Completo" required style="margin-bottom: 5px;">
+                <input type="text" class="sup-whats" placeholder="WhatsApp (31) 90000-0000" required style="margin-bottom: 5px;">
+                <input type="date" class="sup-nasc" required>
+                <input type="hidden" class="sup-funcao" value="Superintendente Principal">
+            </div>
         </div>
-        <div class="form-group">
-            <label>Nome do Superintendente Local:</label>
-            <input type="text" id="superintendente" required>
-        </div>
-        <div class="form-group">
-            <label>WhatsApp do Superintendente:</label>
-            <input type="text" id="whatsAppSuper" required placeholder="(31) 90000-0000">
-        </div>
-        <div class="form-group">
-            <label>Data de Nascimento:</label>
-            <input type="date" id="dataNascSuper" required>
-        </div>
+        <button type="button" class="btn-add" onclick="addSuperintendente()">+ Adicionar Outro Superintendente / Auxiliar</button>
 
-        <div class="section-title">2. Classes e Professores</div>
+        <div class="section-title">2. Mapeamento de Classes e Professores</div>
 
-        <!-- Função auxiliar para gerar classes -->
-        <script>
-            const classes = [
-                { id: "Bercario", name: "1. Berçário (0 a 2 anos)" },
-                { id: "Maternal", name: "2. Maternal (3 e 4 anos)" },
-                { id: "Jardim", name: "3. Jardim da Infância (5 e 6 anos)" },
-                { id: "Primarios", name: "4. Primários (7 e 8 anos)" },
-                { id: "Juniores", name: "5. Juniores (9 a 11 anos)" },
-                { id: "PreAdol", name: "6. Pré-Adolescentes (12 a 14 anos)" },
-                { id: "Adol", name: "7. Adolescentes (15 a 17 anos)" },
-                { id: "Jovens", name: "8. Jovens (A partir de 18 anos)" },
-                { id: "Adultos", name: "9. Adultos" },
-                { id: "Discipulado", name: "10. Discipulado / Novos Convertidos" }
-            ];
+        <div id="classesContainer"></div>
 
-            classes.forEach(c => {
-                document.write(`
-                    <div class="class-box">
-                        <div class="class-title">${c.name}</div>
-                        <div class="form-group">
-                            <label>Possui esta classe?</label>
-                            <select id="possui${c.id}">
-                                <option value="Sim">Sim</option>
-                                <option value="Não" selected>Não</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Nome, Contato e Data de Nasc. dos Professores:</label>
-                            <textarea id="prof${c.id}" rows="2" placeholder="Ex: João Silva - (31) 98888-7777 - 15/04/1985"></textarea>
-                        </div>
-                    </div>
-                `);
-            });
-        </script>
-
-        <div class="section-title">3. Observações Gerais</div>
-        <div class="form-group">
-            <textarea id="observacoes" rows="3" placeholder="Informações adicionais ou turmas faltantes por falta de espaço/professores..."></textarea>
-        </div>
-
-        <button type="submit" id="btnSubmit">Enviar Mapeamento</button>
+        <button type="submit" class="btn-submit" id="btnSubmit">Enviar Mapeamento</button>
     </form>
 </div>
 
 <script>
+    // URL do seu Google Apps Script
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8FUP9GeuYSn_VvhytlNOBHDa7V7c6w2L1-ljQYMVmMaNhBuWMfk01V7eCLjAMLeTC/exec';
 
+    const classesList = [
+        "Berçário (0 a 2 anos)", "Maternal (3 e 4 anos)", "Jardim da Infância (5 e 6 anos)",
+        "Primários (7 e 8 anos)", "Juniores (9 a 11 anos)", "Pré-Adolescentes (12 a 14 anos)",
+        "Adolescentes (15 a 17 anos)", "Jovens (18+)", "Adultos", "Discipulado / Novos Convertidos"
+    ];
+
+    // Renderiza o bloco de cada classe
+    const classesContainer = document.getElementById('classesContainer');
+    classesList.forEach((classeName, index) => {
+        const classId = 'class_' + index;
+        const html = `
+            <div class="card-box" id="${classId}">
+                <div class="card-header">${classeName}</div>
+                <div class="form-group">
+                    <label>A congregação possui esta classe?</label>
+                    <select class="possui-select" onchange="toggleProfessores('${classId}', this.value)">
+                        <option value="Não" selected>Não</option>
+                        <option value="Sim">Sim</option>
+                    </select>
+                </div>
+                <div class="professores-wrapper" style="display: none;">
+                    <div class="professores-list"></div>
+                    <button type="button" class="btn-add" onclick="addProfessor('${classId}', '${classeName}')">+ Adicionar Professor(a)</button>
+                </div>
+            </div>
+        `;
+        classesContainer.insertAdjacentHTML('beforeend', html);
+    });
+
+    function toggleProfessores(classId, value) {
+        const wrapper = document.querySelector(`#${classId} .professores-wrapper`);
+        const profList = document.querySelector(`#${classId} .professores-list`);
+        if (value === 'Sim') {
+            wrapper.style.display = 'block';
+            if (profList.children.length === 0) {
+                addProfessor(classId, classesList[classId.split('_')[1]]);
+            }
+        } else {
+            wrapper.style.display = 'none';
+            profList.innerHTML = '';
+        }
+    }
+
+    function addProfessor(classId, classeName) {
+        const profList = document.querySelector(`#${classId} .professores-list`);
+        const profHtml = `
+            <div class="person-row prof-item" data-classe="${classeName}">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">X</button>
+                <label>Professor(a):</label>
+                <input type="text" class="prof-nome" placeholder="Nome do Professor" required style="margin-bottom: 5px;">
+                <input type="text" class="prof-whats" placeholder="WhatsApp" required style="margin-bottom: 5px;">
+                <input type="date" class="prof-nasc" required>
+            </div>
+        `;
+        profList.insertAdjacentHTML('beforeend', profHtml);
+    }
+
+    function addSuperintendente() {
+        const container = document.getElementById('superintendentesContainer');
+        const html = `
+            <div class="person-row">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">X</button>
+                <label>Co-Superintendente / Auxiliar:</label>
+                <input type="text" class="sup-nome" placeholder="Nome Completo" required style="margin-bottom: 5px;">
+                <input type="text" class="sup-whats" placeholder="WhatsApp" required style="margin-bottom: 5px;">
+                <input type="date" class="sup-nasc" required>
+                <input type="hidden" class="sup-funcao" value="Co-Superintendente / Auxiliar">
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+    }
+
+    // Envio dos Dados
     document.getElementById('ebdForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        
         const btn = document.getElementById('btnSubmit');
         btn.disabled = true;
         btn.innerText = 'Enviando...';
 
-        const payload = {
-            congregacao: document.getElementById('congregacao').value,
-            superintendente: document.getElementById('superintendente').value,
-            whatsAppSuper: document.getElementById('whatsAppSuper').value,
-            dataNascSuper: document.getElementById('dataNascSuper').value,
-            observacoes: document.getElementById('observacoes').value
-        };
+        const congregacao = document.getElementById('congregacao').value;
+        const superintendentes = [];
+        const professores = [];
 
-        classes.forEach(c => {
-            payload['possui' + c.id] = document.getElementById('possui' + c.id).value;
-            payload['prof' + c.id] = document.getElementById('prof' + c.id).value;
+        // Coleta Superintendentes
+        document.querySelectorAll('#superintendentesContainer .person-row').forEach(row => {
+            superintendentes.push({
+                nome: row.querySelector('.sup-nome').value,
+                whatsApp: row.querySelector('.sup-whats').value,
+                dataNasc: row.querySelector('.sup-nasc').value,
+                funcao: row.querySelector('.sup-funcao').value
+            });
         });
+
+        // Coleta Professores
+        document.querySelectorAll('.prof-item').forEach(row => {
+            professores.push({
+                classe: row.getAttribute('data-classe'),
+                nome: row.querySelector('.prof-nome').value,
+                whatsApp: row.querySelector('.prof-whats').value,
+                dataNasc: row.querySelector('.prof-nasc').value
+            });
+        });
+
+        const payload = { congregacao, superintendentes, professores };
 
         fetch(SCRIPT_URL, {
             method: 'POST',
@@ -120,19 +184,16 @@
             body: JSON.stringify(payload)
         })
         .then(() => {
-            alert('Mapeamento enviado com sucesso! Obrigado.');
-            document.getElementById('ebdForm').reset();
-            btn.disabled = false;
-            btn.innerText = 'Enviar Mapeamento';
+            alert('Mapeamento enviado com sucesso!');
+            location.reload();
         })
-        .catch(error => {
-            alert('Erro ao enviar dados. Tente novamente.');
-            console.error(error);
+        .catch(err => {
+            alert('Erro ao enviar.');
+            console.error(err);
             btn.disabled = false;
             btn.innerText = 'Enviar Mapeamento';
         });
     });
 </script>
-
 </body>
 </html>
