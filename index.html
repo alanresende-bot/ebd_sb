@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EBD - ADBH Regional São Benedito</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 15px; }
+        .container { max-width: 650px; background: #fff; margin: auto; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #1e3a8a; font-size: 20px; text-align: center; margin-bottom: 5px; }
+        p.subtitle { text-align: center; color: #666; font-size: 13px; margin-bottom: 20px; }
+        .section-title { background: #3b82f6; color: white; padding: 8px 12px; font-weight: bold; border-radius: 4px; margin-top: 20px; font-size: 14px; }
+        .form-group { margin-bottom: 12px; margin-top: 10px; }
+        label { font-weight: bold; display: block; margin-bottom: 4px; font-size: 13px; }
+        input[type="text"], input[type="date"], select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13px; }
+        .class-box { border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; margin-top: 10px; background: #fafafa; }
+        .class-title { font-weight: bold; color: #1e3a8a; margin-bottom: 8px; }
+        button { background: #16a34a; color: white; border: none; width: 100%; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 20px; }
+        button:hover { background: #15803d; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>ADBH - Regional São Benedito</h1>
+    <p class="subtitle">Mapeamento de Classes e Professores da EBD (CPAD)</p>
+
+    <form id="ebdForm">
+        <div class="section-title">1. Dados do Superintendente e Congregação</div>
+        <div class="form-group">
+            <label>Nome da Congregação:</label>
+            <input type="text" id="congregacao" required placeholder="Ex: Sede Regional, Palmital, etc.">
+        </div>
+        <div class="form-group">
+            <label>Nome do Superintendente Local:</label>
+            <input type="text" id="superintendente" required>
+        </div>
+        <div class="form-group">
+            <label>WhatsApp do Superintendente:</label>
+            <input type="text" id="whatsAppSuper" required placeholder="(31) 90000-0000">
+        </div>
+        <div class="form-group">
+            <label>Data de Nascimento:</label>
+            <input type="date" id="dataNascSuper" required>
+        </div>
+
+        <div class="section-title">2. Classes e Professores</div>
+
+        <!-- Função auxiliar para gerar classes -->
+        <script>
+            const classes = [
+                { id: "Bercario", name: "1. Berçário (0 a 2 anos)" },
+                { id: "Maternal", name: "2. Maternal (3 e 4 anos)" },
+                { id: "Jardim", name: "3. Jardim da Infância (5 e 6 anos)" },
+                { id: "Primarios", name: "4. Primários (7 e 8 anos)" },
+                { id: "Juniores", name: "5. Juniores (9 a 11 anos)" },
+                { id: "PreAdol", name: "6. Pré-Adolescentes (12 a 14 anos)" },
+                { id: "Adol", name: "7. Adolescentes (15 a 17 anos)" },
+                { id: "Jovens", name: "8. Jovens (A partir de 18 anos)" },
+                { id: "Adultos", name: "9. Adultos" },
+                { id: "Discipulado", name: "10. Discipulado / Novos Convertidos" }
+            ];
+
+            classes.forEach(c => {
+                document.write(`
+                    <div class="class-box">
+                        <div class="class-title">${c.name}</div>
+                        <div class="form-group">
+                            <label>Possui esta classe?</label>
+                            <select id="possui${c.id}">
+                                <option value="Sim">Sim</option>
+                                <option value="Não" selected>Não</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Nome, Contato e Data de Nasc. dos Professores:</label>
+                            <textarea id="prof${c.id}" rows="2" placeholder="Ex: João Silva - (31) 98888-7777 - 15/04/1985"></textarea>
+                        </div>
+                    </div>
+                `);
+            });
+        </script>
+
+        <div class="section-title">3. Observações Gerais</div>
+        <div class="form-group">
+            <textarea id="observacoes" rows="3" placeholder="Informações adicionais ou turmas faltantes por falta de espaço/professores..."></textarea>
+        </div>
+
+        <button type="submit" id="btnSubmit">Enviar Mapeamento</button>
+    </form>
+</div>
+
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8FUP9GeuYSn_VvhytlNOBHDa7V7c6w2L1-ljQYMVmMaNhBuWMfk01V7eCLjAMLeTC/exec';
+
+    document.getElementById('ebdForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const btn = document.getElementById('btnSubmit');
+        btn.disabled = true;
+        btn.innerText = 'Enviando...';
+
+        const payload = {
+            congregacao: document.getElementById('congregacao').value,
+            superintendente: document.getElementById('superintendente').value,
+            whatsAppSuper: document.getElementById('whatsAppSuper').value,
+            dataNascSuper: document.getElementById('dataNascSuper').value,
+            observacoes: document.getElementById('observacoes').value
+        };
+
+        classes.forEach(c => {
+            payload['possui' + c.id] = document.getElementById('possui' + c.id).value;
+            payload['prof' + c.id] = document.getElementById('prof' + c.id).value;
+        });
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            alert('Mapeamento enviado com sucesso! Obrigado.');
+            document.getElementById('ebdForm').reset();
+            btn.disabled = false;
+            btn.innerText = 'Enviar Mapeamento';
+        })
+        .catch(error => {
+            alert('Erro ao enviar dados. Tente novamente.');
+            console.error(error);
+            btn.disabled = false;
+            btn.innerText = 'Enviar Mapeamento';
+        });
+    });
+</script>
+
+</body>
+</html>
