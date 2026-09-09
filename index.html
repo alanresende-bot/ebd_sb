@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -12,7 +12,7 @@
         .section-title { background: #3b82f6; color: white; padding: 8px 12px; font-weight: bold; border-radius: 4px; margin-top: 20px; font-size: 14px; }
         .form-group { margin-bottom: 12px; margin-top: 10px; }
         label { font-weight: bold; display: block; margin-bottom: 4px; font-size: 13px; }
-        input[type="text"], input[type="date"], select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13px; }
+        input[type="text"], input[type="date"], select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13px; }
         .card-box { border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; margin-top: 10px; background: #fafafa; }
         .card-header { font-weight: bold; color: #1e3a8a; margin-bottom: 8px; }
         .person-row { background: #fff; border: 1px dashed #cbd5e1; padding: 10px; border-radius: 4px; margin-bottom: 10px; position: relative; }
@@ -32,23 +32,24 @@
     <form id="ebdForm">
         <div class="section-title">1. Congregação e Superintendência</div>
         <div class="form-group">
-    <label>Nome da Congregação:</label>
-    <select id="congregacao" required>
-        <option value="" disabled selected>Selecione a congregação...</option>
-        <option value="Belo Vale">Belo Vale</option>
-        <option value="Cristina A">Cristina A</option>
-        <option value="Cristina B">Cristina B</option>
-        <option value="Duquesa II">Duquesa II</option>
-        <option value="Nova Conquista">Nova Conquista</option>
-        <option value="Nova Esperança">Nova Esperança</option>
-        <option value="Palmital">Palmital</option>
-        <option value="Palmital A">Palmital A</option>
-        <option value="São Cosme de Baixo">São Cosme de Baixo</option>
-        <option value="São Cosme de Cima">São Cosme de Cima</option>
-        <option value="Savassi">Savassi</option>
-        <option value="Subsede">Subsede</option>
-    </select>
-</div>
+            <label>Nome da Congregação:</label>
+            <select id="congregacao" required>
+                <option value="" disabled selected>Selecione a congregação...</option>
+                <option value="Belo Vale">Belo Vale</option>
+                <option value="Cristina A">Cristina A</option>
+                <option value="Cristina B">Cristina B</option>
+                <option value="Duquesa II">Duquesa II</option>
+                <option value="Nova Conquista">Nova Conquista</option>
+                <option value="Nova Esperança">Nova Esperança</option>
+                <option value="Palmital">Palmital</option>
+                <option value="Palmital A">Palmital A</option>
+                <option value="São Cosme de Baixo">São Cosme de Baixo</option>
+                <option value="São Cosme de Cima">São Cosme de Cima</option>
+                <option value="Savassi">Savassi</option>
+                <option value="Subsede">Subsede</option>
+            </select>
+        </div>
+
         <div id="superintendentesContainer">
             <div class="person-row">
                 <label>Superintendente Principal:</label>
@@ -64,13 +65,17 @@
 
         <div id="classesContainer"></div>
 
+        <div class="section-title">3. Observações Gerais</div>
+        <div class="form-group">
+            <textarea id="observacoes" rows="3" placeholder="Espaço para informações adicionais ou necessidades da congregação..."></textarea>
+        </div>
+
         <button type="submit" class="btn-submit" id="btnSubmit">Enviar Mapeamento</button>
     </form>
 </div>
 
 <script>
-    // URL do seu Google Apps Script
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8FUP9GeuYSn_VvhytlNOBHDa7V7c6w2L1-ljQYMVmMaNhBuWMfk01V7eCLjAMLeTC/exec';
+    const SCRIPT_URL = 'COLE_AQUI_A_SUA_URL_DO_PASSO_2';
 
     const classesList = [
         "Berçário (0 a 2 anos)", "Maternal (3 e 4 anos)", "Jardim da Infância (5 e 6 anos)",
@@ -78,7 +83,6 @@
         "Adolescentes (15 a 17 anos)", "Jovens (18+)", "Adultos", "Discipulado / Novos Convertidos"
     ];
 
-    // Renderiza o bloco de cada classe
     const classesContainer = document.getElementById('classesContainer');
     classesList.forEach((classeName, index) => {
         const classId = 'class_' + index;
@@ -87,7 +91,7 @@
                 <div class="card-header">${classeName}</div>
                 <div class="form-group">
                     <label>A congregação possui esta classe?</label>
-                    <select class="possui-select" onchange="toggleProfessores('${classId}', this.value)">
+                    <select class="possui-select" data-classe="${classeName}" onchange="toggleProfessores('${classId}', this.value)">
                         <option value="Não" selected>Não</option>
                         <option value="Sim">Sim</option>
                     </select>
@@ -144,7 +148,6 @@
         container.insertAdjacentHTML('beforeend', html);
     }
 
-    // Envio dos Dados
     document.getElementById('ebdForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnSubmit');
@@ -152,8 +155,10 @@
         btn.innerText = 'Enviando...';
 
         const congregacao = document.getElementById('congregacao').value;
+        const observacoes = document.getElementById('observacoes').value;
         const superintendentes = [];
         const professores = [];
+        const classesAusentes = [];
 
         // Coleta Superintendentes
         document.querySelectorAll('#superintendentesContainer .person-row').forEach(row => {
@@ -163,6 +168,14 @@
                 dataNasc: row.querySelector('.sup-nasc').value,
                 funcao: row.querySelector('.sup-funcao').value
             });
+        });
+
+        // Coleta Seleções das Classes (Existentes e Ausentes)
+        document.querySelectorAll('.possui-select').forEach(select => {
+            const classeNome = select.getAttribute('data-classe');
+            if (select.value === 'Não') {
+                classesAusentes.push(classeNome);
+            }
         });
 
         // Coleta Professores
@@ -175,7 +188,7 @@
             });
         });
 
-        const payload = { congregacao, superintendentes, professores };
+        const payload = { congregacao, observacoes, superintendentes, professores, classesAusentes };
 
         fetch(SCRIPT_URL, {
             method: 'POST',
